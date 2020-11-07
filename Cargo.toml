@@ -12,4 +12,4 @@ Macroquad renderer for megaui
 
 [dependencies]
 macroquad = "0.3.0-alpha" 
-megaui = "=0.2.14"
+megaui = { git = "https://github.com/robwil/megaui", branch = "font-size" }
