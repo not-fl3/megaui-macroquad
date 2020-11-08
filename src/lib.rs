@@ -110,7 +110,7 @@ pub fn set_font_atlas(font_atlas: FontAtlas) {
     let ctx = UiContext::get();
 
     ctx.ui.set_font_atlas(font_atlas);
-    // force recreation of font texture in case the new style replaced the font atlas
+    // force recreation of font texture due to new font atlas
     ctx.font_texture = None;
 }
 
