@@ -12,4 +12,5 @@ Macroquad renderer for megaui
 
 [dependencies]
 macroquad = "0.3.0-alpha" 
+# will change this to a published Cargo version if the megaui PR gets merged to upstream.
 megaui = { git = "https://github.com/robwil/megaui", branch = "font-size" }

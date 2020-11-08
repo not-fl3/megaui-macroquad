@@ -47,7 +47,6 @@ impl UiContext {
                     quad_context: ctx, ..
                 } = get_internal_gl();
                 let font_atlas = &self.ui.font_atlas.borrow();
-                println!("recreating font texture for size: {}", font_atlas.font_size);
                 let texture_data = &font_atlas.texture;
                 let font_texture = Texture2D::from_rgba8(
                     ctx,
