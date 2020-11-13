@@ -160,7 +160,7 @@ fn process_input() {
     let shift = is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift);
     let ctrl = is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl);
 
-    while let Some(c) = get_key_pressed() {
+    while let Some(c) = get_char_pressed() {
         if ctrl == false {
             ctx.ui.char_event(c, false, false);
         }
