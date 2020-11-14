@@ -1,3 +1,4 @@
+use megaui::FontAtlas;
 use std::collections::HashMap;
 
 use macroquad::prelude::*;
@@ -7,7 +8,7 @@ pub use megaui;
 struct UiContext {
     ui: megaui::Ui,
     ui_draw_list: Vec<megaui::DrawList>,
-    font_texture: Texture2D,
+    font_texture: Option<Texture2D>,
     megaui_textures: HashMap<u32, Texture2D>,
     input_processed_this_frame: bool,
 }
@@ -15,24 +16,15 @@ struct UiContext {
 static mut UI_CONTEXT: Option<UiContext> = None;
 
 impl UiContext {
-    fn new(ctx: &mut miniquad::Context) -> UiContext {
+    fn new() -> UiContext {
         let mut ui = megaui::Ui::new();
 
         ui.set_clipboard_object(ClipboardObject);
 
-        let texture_data = &ui.font_atlas.texture;
-        let font_texture = Texture2D::from_rgba8(
-            ctx,
-            texture_data.width as u16,
-            texture_data.height as u16,
-            &texture_data.data,
-        );
-        font_texture.set_filter(ctx, FilterMode::Nearest);
-
         UiContext {
             ui,
             ui_draw_list: vec![],
-            font_texture,
+            font_texture: None,
             megaui_textures: HashMap::new(),
             input_processed_this_frame: false,
         }
@@ -41,14 +33,31 @@ impl UiContext {
     fn get() -> &'static mut UiContext {
         unsafe {
             if UI_CONTEXT.is_none() {
-                let InternalGlContext {
-                    quad_context: ctx, ..
-                } = get_internal_gl();
-
-                UI_CONTEXT = Some(UiContext::new(ctx));
+                UI_CONTEXT = Some(UiContext::new());
             }
 
             UI_CONTEXT.as_mut().unwrap()
+        }
+    }
+
+    fn font_texture(&mut self) -> Texture2D {
+        unsafe {
+            if self.font_texture.is_none() {
+                let InternalGlContext {
+                    quad_context: ctx, ..
+                } = get_internal_gl();
+                let font_atlas = &self.ui.font_atlas.borrow();
+                let texture_data = &font_atlas.texture;
+                let font_texture = Texture2D::from_rgba8(
+                    ctx,
+                    texture_data.width as u16,
+                    texture_data.height as u16,
+                    &texture_data.data,
+                );
+                font_texture.set_filter(ctx, FilterMode::Nearest);
+                self.font_texture = Some(font_texture);
+            }
+            self.font_texture.unwrap()
         }
     }
 }
@@ -95,6 +104,14 @@ pub fn set_ui_style(style: megaui::Style) {
     let ctx = UiContext::get();
 
     ctx.ui.set_style(style);
+}
+
+pub fn set_font_atlas(font_atlas: FontAtlas) {
+    let ctx = UiContext::get();
+
+    ctx.ui.set_font_atlas(font_atlas);
+    // force recreation of font texture due to new font atlas
+    ctx.font_texture = None;
 }
 
 pub fn set_megaui_texture(id: u32, texture: Texture2D) {
@@ -234,13 +251,13 @@ pub fn draw_megaui() {
 
     std::mem::swap(&mut ui_draw_list, &mut ctx.ui_draw_list);
 
-    quad_gl.texture(Some(ctx.font_texture));
+    quad_gl.texture(Some(ctx.font_texture()));
 
     for draw_command in &ui_draw_list {
         if let Some(texture) = draw_command.texture {
             quad_gl.texture(Some(ctx.megaui_textures[&texture]));
         } else {
-            quad_gl.texture(Some(ctx.font_texture));
+            quad_gl.texture(Some(ctx.font_texture()));
         }
         quad_gl.scissor(
             draw_command
