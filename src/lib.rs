@@ -138,6 +138,11 @@ pub fn mouse_over_ui() -> bool {
         .is_mouse_over(megaui::Vector2::new(mouse_position.0, mouse_position.1))
 }
 
+/// Check for megaui mouse captured by scrolls, drags etc
+pub fn mouse_captured() -> bool {
+    UiContext::get().ui.is_mouse_captured()
+}
+
 fn process_input() {
     use megaui::InputHandler;
 
@@ -214,6 +219,17 @@ fn process_input() {
     if is_key_down(KeyCode::A) {
         ctx.ui.key_down(megaui::KeyCode::A, shift, ctrl);
     }
+    if is_key_down(KeyCode::Escape) {
+        ctx.ui.key_down(megaui::KeyCode::Escape, shift, ctrl);
+    }
+    if is_key_down(KeyCode::Enter) {
+        ctx.ui.key_down(megaui::KeyCode::Enter, shift, ctrl);
+    }
+    if is_key_down(KeyCode::LeftControl) || is_key_down(KeyCode::RightControl) {
+        ctx.ui.key_down(megaui::KeyCode::Control, shift, ctrl);
+    }
+    let (wheel_x, wheel_y) = mouse_wheel();
+    ctx.ui.mouse_wheel(wheel_x, -wheel_y);
 
     ctx.input_processed_this_frame = true;
 }
