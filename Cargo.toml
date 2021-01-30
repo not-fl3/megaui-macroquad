@@ -11,5 +11,5 @@ Macroquad renderer for megaui
 """
 
 [dependencies]
-macroquad = "0.3.0-alpha" 
+macroquad = "0.3.0-alpha"
 megaui = "0.2"

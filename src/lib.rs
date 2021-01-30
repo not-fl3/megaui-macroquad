@@ -119,8 +119,8 @@ pub fn draw_window<F: FnOnce(&mut megaui::Ui)>(
 
     megaui::widgets::Window::new(
         id,
-        megaui::Vector2::new(position.x(), position.y()),
-        megaui::Vector2::new(size.x(), size.y()),
+        megaui::Vector2::new(position.x, position.y),
+        megaui::Vector2::new(size.x, size.y),
     )
     .label(params.as_ref().map_or("", |params| &params.label))
     .titlebar(params.as_ref().map_or(true, |params| params.titlebar))
